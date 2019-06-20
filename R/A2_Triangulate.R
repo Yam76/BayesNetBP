@@ -1,3 +1,15 @@
+
+
+#'
+#' @examples
+#' data(liver)
+#' elim.order <- EliminationOrder(liver$dag, liver$node.class)
+#' graph.mor <- Moralize(liver$dag)
+#' graph.tri_correct <- Triangulate_orig(graph.mor, elim.order)
+#' graph.tri <- Triangulate_test(graph.mor, elim.order)
+#' identical(graph.tri, graph.tri_correct)
+#'
+
 Triangulate <- function(graph, elim.order){
   Triangulate_orig(graph, elim.order)
 
