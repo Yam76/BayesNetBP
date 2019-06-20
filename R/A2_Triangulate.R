@@ -32,7 +32,7 @@ Triangulate <- function(graph, elim.order){
 }
 
 Triangulate_test <- function(graph, elim.order){
-
+  dag.graph <- graph
 
   # dag.graph <- graph
   # dag.graph@edgeL <- dag.graph@edgeL[elim.order]
@@ -44,25 +44,30 @@ Triangulate_test <- function(graph, elim.order){
 
   # create adjacency matrix with elim.order as the order of columns and rows
   #   adjacent to self is FALSE
-  dag_matrix <- as(graph, "matrix")[elim.order, elim.order]
+  dag_matrix <- as(dag.graph, "matrix")[elim.order, elim.order]
+  dag_matrix <- dag_matrix == 1
 
 
   for(i in 1:nrow(dag_matrix)){
     # get neighbors that are after ith node in elim.order
-    neighbors <- which( (which(dag_matrix[i, ])) > i)
+    # get neighbors
+    neighbors <- elim.order[dag_matrix[i, ]]
+    # keep only neighbors after ith node in elim.order
+    neighbors <- neighbors[match(neighbors, elim.order) > i]
 
     if(length(neighbors) >= 2){
       for(n1 in 1:(length(neighbors)-1)){
         for(n2 in (n1+1):length(neighbors)){
           if(!dag_matrix[n1, n2]){
-            dag.graph <- add_edges(dag.graph, c(neighbors[k1],neighbors[k2]))
+            dag.graph <- add_edges(dag.graph, c(neighbors[n1], neighbors[n2]))
             dag_matrix[n1, n2] <- TRUE
           }
         }
       }
-
     }
+
   }
+
   dag.tri <- igraph.to.graphNEL(dag.graph)
   return(dag.tri)
 }
