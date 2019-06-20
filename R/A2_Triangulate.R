@@ -1,5 +1,5 @@
 Triangulate <- function(graph, elim.order){
-  Triangulate_test(graph, elim.order)
+  Triangulate_orig(graph, elim.order)
 
 }
 
@@ -22,7 +22,7 @@ Triangulate_orig <- function(graph, elim.order){
           if (which(elim.order==neighbors[k1])>i){
             if (which(elim.order==neighbors[k2])>i){
               if(!are_adjacent(dag.graph, neighbors[k1], neighbors[k2])){
-                print(c(neighbors[k1] , " " , neighbors[k2]))
+                # print(c(neighbors[k1] , " " , neighbors[k2]))
 
                 dag.graph <- add_edges(dag.graph, c(neighbors[k1],neighbors[k2]))
               }
@@ -76,8 +76,8 @@ Triangulate_test <- function(graph, elim.order){
         for(n2 in (n1+1):length(neighbors)){
           first <- which(neighbors[n1] == elim.order)
           second <- which(neighbors[n2] == elim.order)
-          print(first)
-          print(second)
+          # print(first)
+          # print(second)
 
           if(!dag_matrix[first, second]){
             # print(c(neighbors[first] , " " , neighbors[second]))
