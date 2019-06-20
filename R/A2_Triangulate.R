@@ -1,5 +1,5 @@
 Triangulate <- function(graph, elim.order){
-  Triangulate_orig(graph, elim.order)
+  Triangulate_test(graph, elim.order)
 
 }
 
@@ -22,6 +22,8 @@ Triangulate_orig <- function(graph, elim.order){
           if (which(elim.order==neighbors[k1])>i){
             if (which(elim.order==neighbors[k2])>i){
               if(!are_adjacent(dag.graph, neighbors[k1], neighbors[k2])){
+                print(c(neighbors[k1] , " " , neighbors[k2]))
+
                 dag.graph <- add_edges(dag.graph, c(neighbors[k1],neighbors[k2]))
               }
             }
@@ -35,6 +37,10 @@ Triangulate_orig <- function(graph, elim.order){
   dag.tri <- igraph.to.graphNEL(dag.graph)
   return(dag.tri)
 }
+
+
+
+#Note that this uses adjacency matrix implementation, which could present problems for massive datasets
 
 Triangulate_test <- function(graph, elim.order){
   dag.graph <- graph
@@ -50,22 +56,34 @@ Triangulate_test <- function(graph, elim.order){
   # create adjacency matrix with elim.order as the order of columns and rows
   #   adjacent to self is FALSE
   dag_matrix <- as(dag.graph, "matrix")[elim.order, elim.order]
-  dag_matrix <- dag_matrix == 1
+  dag_matrix <- dag_matrix != 0
 
+  dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)
 
-  for(i in 1:nrow(dag_matrix)){
+  for(i in 1:length(elim.order)){
     # get neighbors that are after ith node in elim.order
     # get neighbors
     neighbors <- elim.order[dag_matrix[i, ]]
+
     # keep only neighbors after ith node in elim.order
     neighbors <- neighbors[match(neighbors, elim.order) > i]
 
+
     if(length(neighbors) >= 2){
+
+
       for(n1 in 1:(length(neighbors)-1)){
         for(n2 in (n1+1):length(neighbors)){
-          if(!dag_matrix[n1, n2]){
+          first <- which(neighbors[n1] == elim.order)
+          second <- which(neighbors[n2] == elim.order)
+          print(first)
+          print(second)
+
+          if(!dag_matrix[first, second]){
+            # print(c(neighbors[first] , " " , neighbors[second]))
+
             dag.graph <- add_edges(dag.graph, c(neighbors[n1], neighbors[n2]))
-            dag_matrix[n1, n2] <- TRUE
+            dag_matrix[first, second] <- TRUE
           }
         }
       }
