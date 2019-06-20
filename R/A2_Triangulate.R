@@ -1,5 +1,10 @@
-
 Triangulate <- function(graph, elim.order){
+  Triangulate_orig(graph, elim.order)
+
+}
+
+
+Triangulate_orig <- function(graph, elim.order){
   dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)
   # iterate over all nodes by elimination order
   for (i in 1:length(elim.order)){
