@@ -1,18 +1,22 @@
 #' @importFrom igraph as.undirected
 
 Moralize <- function(graph){
+  Moralize_test(graph)
+}
+
+Moralize_orig <- function(graph){
   # graph <- emission1000$dag
   dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)
   und.graph <- as.undirected(dag.graph, mode = "collapse")
-  # iterate over all nodes 
+  # iterate over all nodes
   nds <- graph::nodes(graph)
-  
+
   for (i in 1:length(nds)) {
     # i <- 1
     node <- nds[i]
     pa <- names(neighbors(dag.graph, node, mode="in"))
     n.pa <- length(pa)
-    
+
     if (n.pa>=2) {
       for (k1 in 1:(n.pa - 1)) {
         for (k2 in (k1+1):n.pa) {
@@ -23,9 +27,64 @@ Moralize <- function(graph){
       }
     }
   }
-  
-  nel.mor <- igraph.to.graphNEL(und.graph) 
+
+  nel.mor <- igraph.to.graphNEL(und.graph)
   # x11(); plot(nel.mor)
   return(nel.mor)
-  
+
 }
+
+Moralize_test <- function(graph){
+  dag_matrix <- as(graph, "matrix") == 1
+  nodes <- graph@nodes
+
+  und.graph <- as.undirected(igraph.from.graphNEL(graph, weight=FALSE), mode = "collapse")
+
+  # und.graph <- ugraph(graph)
+  #
+  # und_matrix <- as(und.graph, "matrix")
+  # und_matrix <- und_matrix == 1
+  #
+  # und.graph <- igraph.from.graphNEL(und.graph)
+
+  # nodes <- colnames(und_matrix)
+
+  for(i in 1:length(nodes)){
+
+    parents <- nodes[dag_matrix[, i]]
+    parents_length <- length(parents)
+
+    # neighbors <- und_matrix[i,]
+    # neighbors <- nodes[neighbors]
+    # neighbors_length <- length(neighbors)
+
+    if(parents_length >= 2){
+      for(n1 in 1:(parents_length-1)){
+        for(n2 in (n1+1):parents_length){
+          # names of the 2 parents
+          parent1 <- parents[n1]
+          parent2 <- parents[n2]
+
+          # indices of the 2 neighbors in nodes
+          first <- which(nodes == parent1)
+          second <- which(nodes == parent2)
+
+          if(!dag_matrix[first, second] && !dag_matrix[second, first]){
+            und.graph <- add_edges(und.graph, c(parent1, parent2))
+            # dag_matrix[first, second] <- TRUE
+            # dag_matrix[second, first] <- TRUE
+          }
+
+        }
+      }
+    }
+
+  }
+  nel.mor <- igraph.to.graphNEL(und.graph)
+  return(nel.mor)
+
+}
+
+
+
+
