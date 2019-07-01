@@ -50,7 +50,7 @@ Triangulate_orig <- function(graph, elim.order){
   return(dag.tri)
 }
 
-# given a magnitude, generate all pairs between each integer from 1 to magnitude-1 inclusive.
+# given a magnitude, generate all possible pairs of the numbers from 1 to magnitude inclusive. Order is not considered.
 
 generate_pairs <- function(magnitude){
   if(magnitude <= 1) return(list())
