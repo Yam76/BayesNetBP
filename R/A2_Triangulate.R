@@ -50,6 +50,55 @@ Triangulate_orig <- function(graph, elim.order){
   return(dag.tri)
 }
 
+# given a magnitude, generate all pairs between each integer from 1 to magnitude-1 inclusive.
+
+generate_pairs <- function(magnitude){
+  if(magnitude <= 1) return(list())
+
+  enumeration <- matrix(nrow = (magnitude-1)*magnitude/2, ncol = 2)
+
+  sum = 0
+  for(i in 1:(magnitude-1)){
+    enumeration[i:(magnitude-1) + sum, 1] <- i
+    enumeration[i:(magnitude-1) + sum, 2] <- (i+1):magnitude
+
+    sum = sum + magnitude - i - 1
+  }
+
+  return(enumeration)
+}
+
+Triangulate_test2 <- function(graph, elim.order){
+  dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)
+  for(i in 1:length(elim.order)){
+    # print(c("on ", i))
+
+    node <- elim.order[i]
+    neighbors <- names(neighbors(dag.graph, node, mode="all"))
+    neighbors_length <- length(neighbors)
+    if(neighbors_length >= 2){
+      node_pairs <- generate_pairs(neighbors_length)
+
+      for(j in 1:nrow(node_pairs)){
+        n1 <- neighbors[node_pairs[j, 1]]
+        n2 <- neighbors[node_pairs[j, 2]]
+        if (which(elim.order==n1)>i && which(elim.order==n2)>i){
+          if(get.edge.ids(dag.graph, c(n1, n2)) == 0){
+
+
+            dag.graph <- add_edges(dag.graph, c(n1, n2))
+          }
+        }
+      }
+    }
+  }
+  # print("simplifying")
+  # dag.graph <- simplify(dag.graph, remove.loops = FALSE)
+  dag.tri <- igraph.to.graphNEL(dag.graph)
+  return(dag.tri)
+
+}
+
 
 
 #Note that this uses adjacency matrix implementation, which could present problems for massive datasets
