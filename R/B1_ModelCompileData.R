@@ -135,7 +135,7 @@ ModelCompileData <- function(data, dag, node.class) {
         form.str <- paste0(this.node, "~.")
         form <- as.formula(form.str)
 
-        print(c("######################################################FORM:", form))
+        # print(c("######################################################FORM:", form))
 
 
         lm.fit <- lm(form, df.sub)
@@ -204,7 +204,7 @@ ModelCompileData <- function(data, dag, node.class) {
 
         form <- as.formula(form.str)
 
-        print(c("######################################################FORM:", form))
+        # print(c("######################################################FORM:", form))
 
 
         lm.fit <- lm(form, df.sub)
