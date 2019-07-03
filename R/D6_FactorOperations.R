@@ -56,11 +56,18 @@ index.gen.special_test <- function(tab1, tab2){
     unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
   }
 
-  tab1o.s<- orderBy(fmr, data=tab1o)
-  #tab1o.s <- data.table(tab1o, key = config.var.int)
+  # get columns specified by config.var.int and split them, then send them to do.call
+  # tab1o.s<- orderBy(fmr, data=tab1o)
 
-  tab2o.s<- orderBy(fmr, data=tab2o)
-  #tab2o.s <- data.table(tab2o, key = config.var.int)
+  # split(tab1o[, config.var.int], col(tab1o[, config.var.int]))
+  # # c(list(tab1o), split(tab1o[, config.var.int], col(tab1o[, config.var.int]))) # WRONG
+  # do.call(order, split(tab1o[, config.var.int], col(tab1o[, config.var.int])))
+  # split(tab1o[, config.var.int], rep(1:ncol(tab1o[, config.var.int]), each = nrow(tab1o[, config.var.int])))
+  tab1o.s <- tab1o[do.call(order, split(tab1o[, config.var.int], rep(1:ncol(tab1o[, config.var.int]), each = nrow(tab1o[, config.var.int])))), ]
+
+
+  # tab2o.s<- orderBy(fmr, data=tab2o)
+  tab2o.s <- tab2o[do.call(order, split(tab2o[, config.var.int], rep(1:ncol(tab2o[, config.var.int]), each = nrow(tab2o[, config.var.int])))), ]
 
   n.uni <- nrow(unique.vec)
   r.1 <- nrow(tab1o.s)/n.uni
