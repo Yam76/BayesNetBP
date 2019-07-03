@@ -34,6 +34,7 @@ Moralize_orig <- function(graph){
 
 }
 
+#' @importFrom graph inEdges
 Moralize_test3 <- function(graph){
 
   dag_nodes <- nodes(graph)
