@@ -3,21 +3,21 @@
 ###########################################
 
 propagate.worker <- function(tree.graph, potentials, cluster.sets){
-  
+
   # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
-  
+
   cluster.tree <- list(
     # bn=dag,
     tree=tree.graph,
-    clusters=cluster.sets, 
+    clusters=cluster.sets,
     # assignment=asgn,
     collected=c(), active=c(), potentials=potentials, joint=potentials)
-  
+
   clusters <- names(potentials)
   result <- list()
-  
+
   ## NEW version of getting joints
-  
+
   # collect
   ce <- CollectEvidence(cluster.tree, clusters[1])
   # reset active nodes
@@ -25,7 +25,7 @@ propagate.worker <- function(tree.graph, potentials, cluster.sets){
   # distribute
   de <- DistributeEvidence(ce, clusters[1])
   result <- de$joint
-  
+
   return(result)
 }
 
@@ -36,20 +36,20 @@ propagate.worker <- function(tree.graph, potentials, cluster.sets){
 Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
   pot1 <- absorbedFrom
   pot2 <- absorbedTo
-  
+
   # pot2 <- cluster.tree$potentials[["Cyp2b10"]]; pot1 <- cluster.tree$potentials[["HDL"]];
   # separator <- intersect( cluster.tree$clusters[["Cyp2b10"]],  cluster.tree$clusters[["HDL"]])
-  
+
   inter.var <- separator
   sep <- marginalize.discrete(pot1, inter.var)
-  
+
   results <- list()
   if (distribute) {
     results[[1]] <- NULL
   } else {
     results[[1]] <- factor.divide(pot1, sep)
   }
-  
+
   results[[2]] <- factor.product(pot2, sep)
   return(results)
 }
@@ -63,14 +63,14 @@ CollectEvidence <- function(cluster.tree, node) {
   ngbs <- neighbors(cluster.tree$tree, node, mode = "all")$name
   inactive <- setdiff(ngbs, cluster.tree$active)
   cluster.tree$active <- c(cluster.tree$active, node)
-  
+
   for (ngb in inactive){
     # cat("collecting for ", node, "from", ngb)
     cluster.tree <- CollectEvidence(cluster.tree, ngb)
     # collected <- ce[[1]]
     # cst <- ce[[2]]
   }
-  
+
   if (length(inactive)>0) {
     for (i in 1:length(inactive)) {
       abb <- Absorb(cluster.tree$potentials[[node]], cluster.tree$potentials[[inactive[i]]],
@@ -79,7 +79,7 @@ CollectEvidence <- function(cluster.tree, node) {
       cluster.tree$potentials[[inactive[i]]] <- abb[[1]]
       # cat(inactive[i], " -> ", node, "\n")
     }
-    
+
   }
   cluster.tree$collected <- c(cluster.tree$collected, node)
   return(cluster.tree)
@@ -94,12 +94,12 @@ CollectEvidence <- function(cluster.tree, node) {
 DistributeEvidence <- function(cluster.tree, node){
   clique.names <- names(V(cluster.tree$tree))
   ngbs <- neighbors(cluster.tree$tree, node, mode = "all")$name
-  
+
   inactive <- setdiff(ngbs, cluster.tree$active)
   cluster.tree$active <- c(cluster.tree$active, node)
-  
+
   cluster.tree$joint[[node]] <- cluster.tree$potentials[[node]]
-  
+
   if (length(inactive)>0) {
     for (i in 1:length(inactive)) {
       abb <- Absorb(cluster.tree$potentials[[inactive[i]]], cluster.tree$potentials[[node]],
@@ -109,7 +109,7 @@ DistributeEvidence <- function(cluster.tree, node){
       cluster.tree <- DistributeEvidence(cluster.tree, inactive[i])
     }
   }
-  
+
   return(cluster.tree)
 }
 
