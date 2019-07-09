@@ -58,13 +58,47 @@ Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
 ## Collect evidence
 ###########################################
 
-CollectEvidence <- function(cluster.tree, node) {
-  clique.names <- names(V(cluster.tree$tree))
-  ngbs <- neighbors(cluster.tree$tree, node, mode = "all")$name
-  inactive <- setdiff(ngbs, cluster.tree$active)
-  cluster.tree$active <- c(cluster.tree$active, node)
+CollectEvidence_test <- function(cluster.tree, node){
 
-  for (ngb in inactive){
+  clique.names <- names(V(cluster.tree$tree))
+  nodes_status <- data.frame(clique.names, active = FALSE, collected = FALSE)
+
+  for(j in 1:length(clique.names)){
+    nodes_status[j, 2] <- TRUE
+    neighbors <- neighbors(cluster.tree$tree, n, mode = "all")$name
+    neighbors_status <- nodes_status[nodes_status$clique.names %in% neighbors,]
+
+    inactive <- neighbors_status[!neighbors_status$active] # only get inactive neighbors
+    if(length(inactive) > 0){
+
+
+      for (i in 1:nrow(inactive)) {
+        abb <- Absorb(cluster.tree$potentials[[node]], cluster.tree$potentials[[inactive[i]]],
+                      separator = intersect( cluster.tree$clusters[[node]],  cluster.tree$clusters[[inactive[i]]]))
+        cluster.tree$potentials[[node]] <- abb[[2]]
+        cluster.tree$potentials[[inactive[i]]] <- abb[[1]]
+        # cat(inactive[i], " -> ", node, "\n")
+      }
+
+    }
+    nodes_status[j, 3] <- TRUE
+  }
+
+  cluster.tree$collected <- (neighbors_status[neighbors_status$collected])[,1]
+  return(cluster.tree)
+
+
+}
+
+CollectEvidence <- function(cluster.tree, node) {
+  # print(c("Collecting node", node))
+
+  clique.names <- names(V(cluster.tree$tree))
+  ngbs <- neighbors(cluster.tree$tree, node, mode = "all")$name # neighbors of node
+  inactive <- setdiff(ngbs, cluster.tree$active) # neighboring nodes that are not active
+  cluster.tree$active <- c(cluster.tree$active, node) # node is now active
+
+  for (ngb in inactive){ # for each inactive neighbor, we seek to activate them
     # cat("collecting for ", node, "from", ngb)
     cluster.tree <- CollectEvidence(cluster.tree, ngb)
     # collected <- ce[[1]]
@@ -92,6 +126,8 @@ CollectEvidence <- function(cluster.tree, node) {
 # need to reset the active nodes of cluster.tree after collecting evidence
 
 DistributeEvidence <- function(cluster.tree, node){
+  # print(c("Distributing node: ", node))
+
   clique.names <- names(V(cluster.tree$tree))
   ngbs <- neighbors(cluster.tree$tree, node, mode = "all")$name
 
