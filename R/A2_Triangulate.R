@@ -1,5 +1,6 @@
 
 
+#' @importFrom igraph get.edge.ids
 #'
 #' @examples
 #' data(liver)
@@ -11,7 +12,7 @@
 #'
 
 Triangulate <- function(graph, elim.order){
-  Triangulate_test(graph, elim.order)
+  Triangulate_test2(graph, elim.order)
 
 }
 
@@ -67,6 +68,7 @@ generate_pairs <- function(magnitude){
 
   return(enumeration)
 }
+
 
 Triangulate_test2 <- function(graph, elim.order){
   dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)

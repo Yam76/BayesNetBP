@@ -257,7 +257,47 @@ conditional <- function(pot, vars) {
 # pot <- tree.init.p@jpt[["HDL"]]; vars <- c("HDL")
 # system.time(mg1 <- marginalize.discrete(pot, vars) )
 
-marginalize.discrete <- function(pot, vars) {
+marginalize.discrete <- function(pot, vars){
+  marginalize.discrete_test(pot, vars)
+}
+
+# marginalize.discrete_test2 <- function(pot, vars){
+#   # get intersection b/wn pot$cpt and vars names
+#   pot.vars <- names(pot$cpt) ######
+#   vars <- intersect(pot.vars, vars) ######
+#   if(length(vars)==0) {
+#     result <- list(cpt=data.frame(matrix(0,nrow=0,ncol=0)), prob=1)
+#     return(result)
+#   }
+#
+#   df <- cbind(pot$cpt, prob_ = pot$prob)
+#
+# }
+
+marginalize.discrete_test <- function(pot, vars){
+  # get intersection b/wn pot$cpt and vars names
+  pot.vars <- names(pot$cpt) ######
+  vars <- intersect(pot.vars, vars) ######
+  if(length(vars)==0) {
+    result <- list(cpt=data.frame(matrix(0,nrow=0,ncol=0)), prob=1)
+    return(result)
+  }
+
+
+  #df <- data.frame(pot$cpt, prob_=pot$prob) # combine pot$cpt and pot$prob (under _prob)
+  df <- cbind(pot$cpt, prob_ = pot$prob)
+
+  fmr.str <- paste0("prob_~", paste0(rev(vars), collapse="+")) # ordering
+  fmr <- as.formula(fmr.str)
+  dfs <- aggregate(fmr, df, FUN = sum)
+  dfs_vars <- dfs[,vars, drop = FALSE]
+  result <- list(cpt=dfs_vars, prob=dfs[,(length(vars)+1)])
+
+  return(result)
+
+}
+
+marginalize.discrete_orig <- function(pot, vars) {
 
   pot.vars <- names(pot$cpt) ######
   vars <- intersect(pot.vars, vars) ######
@@ -273,5 +313,6 @@ marginalize.discrete <- function(pot, vars) {
   fmr <- as.formula(fmr.str)
   dfs <- summaryBy(fmr, df, FUN=sum)
   result <- list(cpt=dfs[, 1:nc, drop=FALSE], prob=dfs[,(nc+1)])
+
   return(result)
 }
