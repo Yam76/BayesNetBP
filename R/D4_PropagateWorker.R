@@ -58,39 +58,68 @@ Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
 ## Collect evidence
 ###########################################
 
-CollectEvidence_test <- function(cluster.tree, node){
-
-  clique.names <- names(V(cluster.tree$tree))
-  nodes_status <- data.frame(clique.names, active = FALSE, collected = FALSE)
-
-  for(j in 1:length(clique.names)){
-    nodes_status[j, 2] <- TRUE
-    neighbors <- neighbors(cluster.tree$tree, n, mode = "all")$name
-    neighbors_status <- nodes_status[nodes_status$clique.names %in% neighbors,]
-
-    inactive <- neighbors_status[!neighbors_status$active] # only get inactive neighbors
-    if(length(inactive) > 0){
-
-
-      for (i in 1:nrow(inactive)) {
-        abb <- Absorb(cluster.tree$potentials[[node]], cluster.tree$potentials[[inactive[i]]],
-                      separator = intersect( cluster.tree$clusters[[node]],  cluster.tree$clusters[[inactive[i]]]))
-        cluster.tree$potentials[[node]] <- abb[[2]]
-        cluster.tree$potentials[[inactive[i]]] <- abb[[1]]
-        # cat(inactive[i], " -> ", node, "\n")
-      }
-
-    }
-    nodes_status[j, 3] <- TRUE
-  }
-
-  cluster.tree$collected <- (neighbors_status[neighbors_status$collected])[,1]
-  return(cluster.tree)
-
+CollectEvidence <- function(cluster.tree, node){
+  CollectEvidence_test(cluster.tree, node)
 
 }
 
-CollectEvidence <- function(cluster.tree, node) {
+
+# absorb nodes and then return which nodes were collected
+CollectEvidence_test <- function(cluster.tree, node){
+  clique.names <- names(V(cluster.tree$tree)) # get tree nodes
+  nodes_status <- data.frame(clique.names, collected = FALSE, queued = FALSE) # initialize markings
+  nodes_status[nodes_status$clique.names %in% node,]$queued <- TRUE # mark `node` as queued
+
+  while(any(nodes_status$queued)){ # as long as there are nodes queued
+    n <- nodes_status[nodes_status$queued,][1,1] # get the first node in queue
+    nodes_status[nodes_status$queued,][1,]$collected <- TRUE # mark first node in queue as collected
+    nodes_status[nodes_status$queued,][1,]$queued <- FALSE # unqueue the first node
+
+
+    neighbors_names <- neighbors(cluster.tree$tree, n, mode = "all")$name # get neighbors of n
+    neighbors_status <- nodes_status[nodes_status$clique.names %in% neighbors_names,] # get neighbors' rows
+    uncollected <- neighbors_status[!neighbors_status$collected,] # cull for only uncollected neighbors
+    uncollected_names <- uncollected$clique.names # get the names of uncollected neighbors
+
+    if(length(uncollected_names) > 0){ # absorb magic
+      nodes_status[nodes_status$clique.names %in% uncollected$clique.names, ]$queued <- TRUE # queue uncollected neighbors
+
+      for (i in 1:length(uncollected_names)) {
+        abb <- Absorb(cluster.tree$potentials[[n]], cluster.tree$potentials[[uncollected_names[i]]],
+                      separator = intersect( cluster.tree$clusters[[n]],  cluster.tree$clusters[[uncollected_names[i]]]))
+        cluster.tree$potentials[[n]] <- abb[[2]]
+        cluster.tree$potentials[[uncollected_names[i]]] <- abb[[1]]
+      }
+    }
+  }
+
+  cluster.tree$collected <- nodes_status[nodes_status$collected]$clique.names
+  cluster.tree$active <- nodes_status[nodes_status$collected]$clique.names
+  return(cluster.tree)
+
+  # for(j in 1:length(clique.names)){
+  #   nodes_status[j, 2] <- TRUE
+  #   neighbors <- neighbors(cluster.tree$tree, n, mode = "all")$name
+  #   neighbors_status <- nodes_status[nodes_status$clique.names %in% neighbors,]
+  #
+  #   inactive <- neighbors_status[!neighbors_status$active] # only get inactive neighbors
+  #   if(length(inactive) > 0){
+  #
+  #
+  #     for (i in 1:nrow(inactive)) {
+  #       abb <- Absorb(cluster.tree$potentials[[node]], cluster.tree$potentials[[inactive[i]]],
+  #                     separator = intersect( cluster.tree$clusters[[node]],  cluster.tree$clusters[[inactive[i]]]))
+  #       cluster.tree$potentials[[node]] <- abb[[2]]
+  #       cluster.tree$potentials[[inactive[i]]] <- abb[[1]]
+  #       # cat(inactive[i], " -> ", node, "\n")
+  #     }
+  #
+  #   }
+  #   nodes_status[j, 3] <- TRUE
+  # }
+}
+
+CollectEvidence_orig <- function(cluster.tree, node) {
   # print(c("Collecting node", node))
 
   clique.names <- names(V(cluster.tree$tree))
