@@ -59,7 +59,7 @@ Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
 ###########################################
 
 CollectEvidence <- function(cluster.tree, node){
-  CollectEvidence_test(cluster.tree, node)
+  CollectEvidence_orig(cluster.tree, node)
 
 }
 
@@ -151,6 +151,43 @@ CollectEvidence_orig <- function(cluster.tree, node) {
 ###########################################
 ## Distribute evidence
 ###########################################
+
+DistributeEvidence_test <- function(cluster.tree, node){
+  clique.names <- names(V(cluster.tree$tree))
+  nodes_status <- data.frame(clique.names, active = FALSE, queued = FALSE, stringsAsFactors = FALSE) # are they actually inactive? NO, need to fix
+  # but they actually are inactive, since propagate.worker clears cluster.tree$active!
+
+  # nodes_status$active <- nodes_status$clique.names %in% cluster.tree$active
+  nodes_status[nodes_status$clique.names %in% node,]$queued <- TRUE
+
+  while(any(nodes_status$queued)){
+    n <- nodes_status[nodes_status$queued,][1,1]
+    nodes_status[nodes_status$queued,][1,]$active <- TRUE
+    nodes_status[nodes_status$queued,][1,]$queued <- FALSE
+
+    neighbors_names <- neighbors(cluster.tree$tree, n, mode = "all")$name # get neighbors of n
+    neighbors_status <- nodes_status[nodes_status$clique.names %in% neighbors_names,] # get neighbors' rows
+    inactive <- neighbors_status[!neighbors_status$active,] # cull for only uncollected neighbors
+    inactive_names <- inactive$clique.names # get the names of uncollected neighbors
+
+    if (length(inactive_names)>0) {
+      nodes_status[nodes_status$clique.names %in% inactive$clique.names, ]$queued <- TRUE # queue inactive neighbors
+
+      for (i in 1:length(inactive_names)) {
+        abb <- Absorb(cluster.tree$potentials[[inactive_names[i]]], cluster.tree$potentials[[n]],
+                      separator = intersect( cluster.tree$clusters[[n]],  cluster.tree$clusters[[inactive_names[i]]]),
+                      distribute = TRUE)
+        cluster.tree$potentials[[inactive_names[i]]] <- abb[[2]]
+      }
+    }
+
+    cluster.tree$joint[[n]] <- cluster.tree$potentials[[n]]
+
+  }
+  cluster.tree$active <- nodes_status[nodes_status$active,]$clique.names
+
+  return(cluster.tree)
+}
 
 # need to reset the active nodes of cluster.tree after collecting evidence
 
