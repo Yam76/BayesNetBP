@@ -152,6 +152,10 @@ CollectEvidence_orig <- function(cluster.tree, node) {
 ## Distribute evidence
 ###########################################
 
+DistributeEvidence <- function(cluster.tree, node){
+  DistributeEvidence_orig(cluster.tree, node)
+}
+
 DistributeEvidence_test <- function(cluster.tree, node){
   clique.names <- names(V(cluster.tree$tree))
   nodes_status <- data.frame(clique.names, active = FALSE, queued = FALSE, stringsAsFactors = FALSE) # are they actually inactive? NO, need to fix
@@ -191,7 +195,7 @@ DistributeEvidence_test <- function(cluster.tree, node){
 
 # need to reset the active nodes of cluster.tree after collecting evidence
 
-DistributeEvidence <- function(cluster.tree, node){
+DistributeEvidence_orig <- function(cluster.tree, node){
   # print(c("Distributing node: ", node))
 
   clique.names <- names(V(cluster.tree$tree))
