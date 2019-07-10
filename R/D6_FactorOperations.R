@@ -26,7 +26,7 @@ index.generator <- function(tab1, tab2){
 # tab1 <- bag.post@config; tab2 <- bag.lp@config
 
 index.gen.special <- function(tab1, tab2){
-  index.gen.special_test2(tab1, tab2)
+  index.gen.special_test3(tab1, tab2)
 }
 
 index.gen.special_test3 <- function(tab1, tab2){
@@ -49,11 +49,17 @@ index.gen.special_test3 <- function(tab1, tab2){
   # form.str <- paste0("~", paste0(config.var.int, collapse="+"))
   # fmr <- as.formula(form.str)
 
+  ### replace with duplicated!
+
+  # do quick check to see which of tab1 or tab2 is smaller
   if(length(tab1) <= length(tab2)){ # if tab1 is smaller or same size
-    unique.vec <- unique(tab1[, config.var.int, drop=FALSE]) # do quick check to see which of tab1 or tab2 is smaller
+    # unique.vec <- unique(tab1[, config.var.int, drop=FALSE])
+    unique.vec <- tab1[!duplicated(tab1[, config.var.int]), config.var.int, drop = FALSE]
+    # this works but gives a different order?? Should be fine since we only care about number of rows
   }
   else{
-    unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
+    # unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
+    unique.vec <- tab2[!duplicated(tab2[, config.var.int]), config.var.int, drop = FALSE]
   }
 
 
@@ -75,10 +81,11 @@ index.gen.special_test3 <- function(tab1, tab2){
   # as.list(data.frame(config_cols_1))
   # config_split_1 <- lapply(seq_len(ncol(config_cols_1)), function(i) config_cols_1[,i])
 
-
-  ### SIMPLY RIP EACH COLUMN INTO A SEPARATE VECTOR IN A LIST
-  config_split_1 <- vector("list", ncol(config_cols_1))
-  for(j in 1:ncol(config_cols_1)){
+  ### TODO: add temp var for ncol
+  # SIMPLY RIP EACH COLUMN INTO A SEPARATE VECTOR IN A LIST
+  ncols_cc1 <- ncol(config_cols_1)
+  config_split_1 <- vector("list", ncols_cc1)
+  for(j in 1:ncols_cc1){
     config_split_1[[j]] <- config_cols_1[,j]
   }
 
@@ -92,8 +99,9 @@ index.gen.special_test3 <- function(tab1, tab2){
 
   # config_split_2 <- lapply(seq_len(ncol(config_cols_2)), function(i) config_cols_2[,i])
 
-  config_split_2 <- vector("list", ncol(config_cols_2))
-  for(j in 1:ncol(config_cols_2)){
+  ncols_cc2 <- ncol(config_cols_2)
+  config_split_2 <- vector("list", ncols_cc2)
+  for(j in 1:ncols_cc2){
     config_split_2[[j]] <- config_cols_2[,j]
   }
 
