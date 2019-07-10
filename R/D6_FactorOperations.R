@@ -47,6 +47,7 @@ index.gen.special_test3 <- function(tab1, tab2){
   tab2o <- cbind(tab2, 1:nrow(tab2))
 
 
+
   # do quick check to see which of tab1 or tab2 is smaller
   if(length(tab1) <= length(tab2)){ # if tab1 is smaller or same size
     # unique.vec <- unique(tab1[, config.var.int, drop=FALSE])
