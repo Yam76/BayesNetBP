@@ -1,7 +1,7 @@
 #' @importFrom igraph as.undirected
 
 Moralize <- function(graph){
-  Moralize_test3(graph)
+  Moralize_orig(graph)
 }
 
 Moralize_orig <- function(graph){

@@ -26,7 +26,7 @@ index.generator <- function(tab1, tab2){
 # tab1 <- bag.post@config; tab2 <- bag.lp@config
 
 index.gen.special <- function(tab1, tab2){
-  index.gen.special_test3(tab1, tab2)
+  index.gen.special_orig(tab1, tab2)
 }
 
 index.gen.special_test3 <- function(tab1, tab2){
@@ -462,7 +462,7 @@ conditional <- function(pot, vars) {
 # system.time(mg1 <- marginalize.discrete(pot, vars) )
 
 marginalize.discrete <- function(pot, vars){
-  marginalize.discrete_test(pot, vars)
+  marginalize.discrete_orig(pot, vars)
 }
 
 # marginalize.discrete_test2 <- function(pot, vars){

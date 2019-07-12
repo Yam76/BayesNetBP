@@ -59,7 +59,7 @@ Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
 ###########################################
 
 CollectEvidence <- function(cluster.tree, node){
-  CollectEvidence_test(cluster.tree, node)
+  CollectEvidence_orig(cluster.tree, node)
 
 }
 
@@ -153,7 +153,7 @@ CollectEvidence_orig <- function(cluster.tree, node) {
 ###########################################
 
 DistributeEvidence <- function(cluster.tree, node){
-  DistributeEvidence_test(cluster.tree, node)
+  DistributeEvidence_orig(cluster.tree, node)
 }
 
 DistributeEvidence_test <- function(cluster.tree, node){

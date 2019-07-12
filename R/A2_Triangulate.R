@@ -12,7 +12,7 @@
 #'
 
 Triangulate <- function(graph, elim.order){
-  Triangulate_test2(graph, elim.order)
+  Triangulate_orig(graph, elim.order)
 
 }
 
