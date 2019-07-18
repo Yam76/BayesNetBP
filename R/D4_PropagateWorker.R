@@ -3,6 +3,48 @@
 ###########################################
 
 propagate.worker <- function(tree.graph, potentials, cluster.sets){
+  propagate.worker_orig(tree.graph, potentials, cluster.sets)
+
+}
+
+propagate.worker_test <- function(tree.graph, potentials, cluster.sets){
+
+  # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
+
+  cluster.tree <- list(tree=tree.graph, clusters=cluster.sets, collected=c(), active=c(),
+    potentials=potentials, joint=potentials)
+
+  total_ce <- list(tree = tree.graph, clusters = cluster.sets, collected = c(), active = c(),
+    potentials = c(), joint = c()) # we will staple potentials and joint to this
+
+  clusters <- names(cluster.sets)
+  uncollected <- clusters # no nodes are collected yet
+  unconnected_clusters <- c() # list of cluster names that are in unique unconnected subgraphs
+
+  while(length(uncollected) != 0){
+    ce <- CollectEvidence(cluster.tree, uncollected[1])
+    collected <- ce$collected
+    total_ce$potentials <- c(total_ce$potentials, ce$potentials[collected]) # staple potentials of collected nodes
+    total_ce$joint <- c(total_ce$joint, ce$joint[collected]) # staple joints of collected nodes
+    total_ce$collected <- c(total_ce$collected, collected)
+
+    # get the first collected node as representative of the unconnected subgraph
+    unconnected_clusters <- c(unconnected_clusters, collected[1])
+    uncollected <- setdiff(clusters, total_ce$collected) # remove collected nodes
+  }
+  print(unconnected_clusters)
+  already_collected <- c() # lagging record of previous active clusters
+  total_result <- list()
+  for(i in 1:length(unconnected_clusters)){
+    de <- DistributeEvidence(total_ce, unconnected_clusters[i])
+    total_result <- c(total_result, de$joint[setdiff(de$active, already_collected)]) # only get the new ones
+    already_collected <- de$active
+  }
+
+  return(total_result)
+}
+
+propagate.worker_orig <- function(tree.graph, potentials, cluster.sets){
 
   # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
 
@@ -17,6 +59,8 @@ propagate.worker <- function(tree.graph, potentials, cluster.sets){
   result <- list()
 
   ## NEW version of getting joints
+
+  print(clusters[1])
 
   # collect
   ce <- CollectEvidence(cluster.tree, clusters[1])

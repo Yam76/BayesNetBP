@@ -461,6 +461,7 @@ conditional <- function(pot, vars) {
 # pot <- tree.init.p@jpt[["HDL"]]; vars <- c("HDL")
 # system.time(mg1 <- marginalize.discrete(pot, vars) )
 
+#' @importFrom doBy summaryBy
 marginalize.discrete <- function(pot, vars){
   marginalize.discrete_orig(pot, vars)
 }
