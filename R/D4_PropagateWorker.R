@@ -24,15 +24,16 @@ propagate.worker_test <- function(tree.graph, potentials, cluster.sets){
   while(length(uncollected) != 0){
     ce <- CollectEvidence(cluster.tree, uncollected[1])
     collected <- ce$collected
+
     total_ce$potentials <- c(total_ce$potentials, ce$potentials[collected]) # staple potentials of collected nodes
     total_ce$joint <- c(total_ce$joint, ce$joint[collected]) # staple joints of collected nodes
     total_ce$collected <- c(total_ce$collected, collected)
 
-    # get the first collected node as representative of the unconnected subgraph
+    # get the first collected node as representative of the separate subgraph
     unconnected_clusters <- c(unconnected_clusters, collected[1])
     uncollected <- setdiff(clusters, total_ce$collected) # remove collected nodes
   }
-  print(unconnected_clusters)
+  # print(unconnected_clusters)
   already_collected <- c() # lagging record of previous active clusters
   total_result <- list()
   for(i in 1:length(unconnected_clusters)){
