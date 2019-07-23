@@ -7,6 +7,59 @@ propagate.worker <- function(tree.graph, potentials, cluster.sets){
 
 }
 
+# targets is a vector of ANY nodes in the graph
+propagate.worker_test2 <- function(tree.graph, potentials, cluster.sets, targets = NA){
+
+  # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
+
+  cluster.tree <- list(tree=tree.graph, clusters=cluster.sets, collected=c(), active=c(),
+                       potentials=potentials, joint=potentials)
+
+  total_ce <- list(tree = tree.graph, clusters = cluster.sets, collected = c(), active = c(),
+                   potentials = c(), joint = c()) # we will staple potentials and joint to this
+
+  if(is.na(targets)){
+    clusters <- names(cluster.sets)
+  }
+  else{
+    # only gets first instance in unlist, but that's ok since if a name is in two clusters, the clusters are connected
+    # and will be processed anyways
+    matched_indices <- match(targets, unlist(cluster.sets)) # includes NA, we remove  this later
+    # unlist adds a number to the end of each element name so the cluster names are mangled
+    mangled_target_clusters <- names(unlist(cluster.sets)[matched_indices[!is.na(matched_indices)]]) # get the clusters the targets are in
+    # we remove the last character because of unlist
+    # we unique in case of repeated clusters
+    clusters <- unique(substr(mangled_target_clusters, 1, nchar(mangled_target_clusters) - 1)) # these are all the clusters we care about
+  }
+
+  uncollected <- clusters # no nodes are collected yet
+  unconnected_clusters <- c() # list of cluster names that are in unique unconnected subgraphs
+
+  while(length(uncollected) != 0){
+    ce <- CollectEvidence(cluster.tree, uncollected[1])
+    collected <- ce$collected
+
+    total_ce$potentials <- c(total_ce$potentials, ce$potentials[collected]) # staple potentials of collected nodes
+    total_ce$joint <- c(total_ce$joint, ce$joint[collected]) # staple joints of collected nodes
+    total_ce$collected <- c(total_ce$collected, collected)
+
+    # get the first collected node as representative of the separate subgraph
+    unconnected_clusters <- c(unconnected_clusters, collected[1])
+    uncollected <- setdiff(clusters, total_ce$collected) # remove collected nodes
+  }
+  # print(unconnected_clusters)
+  already_collected <- c() # lagging record of previous active clusters
+  total_result <- list()
+  for(i in 1:length(unconnected_clusters)){
+    de <- DistributeEvidence(total_ce, unconnected_clusters[i])
+    total_result <- c(total_result, de$joint[setdiff(de$active, already_collected)]) # only get the new ones
+    already_collected <- de$active
+  }
+
+  return(total_result)
+}
+
+
 propagate.worker_test <- function(tree.graph, potentials, cluster.sets){
 
   # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
