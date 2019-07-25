@@ -3,8 +3,39 @@
 ###########################################
 
 propagate.worker <- function(tree.graph, potentials, cluster.sets, targets = NA){
-  propagate.worker_test2(tree.graph, potentials, cluster.sets, targets)
+  propagate.worker_test2(tree.graph, potentials, cluster.sets)
 
+}
+
+propagate.worker_test3 <- function(tree.graph, potentials, cluster.sets, targets = NA){
+
+  decomposed_tree <- igraph::decompose(tree.graph)
+  if(any(!is.na(targets))){
+    cleaned_targets <- targets[!is.na(targets)] # remove NA
+    cleaned_targets <- cleaned_targets[cleaned_targets %in% unlist(cluster.sets)] # remove invalid targets
+
+    temp <- length(decomposed_tree)
+    for(j in 1:temp){ # for every tree component
+      if(!any( cleaned_targets %in% names(V(decomposed_tree[[j]])) )){ # if NONE of the cleaned targets are in the component
+        decomposed_tree[[j]] <- NA # set it to NA for later removal
+      }
+    }
+
+    decomposed_tree <- decomposed_tree[!is.na(decomposed_tree)] # remove all NA components(from above)
+  }
+
+
+
+  # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
+
+  component_number <- length(decomposed_tree)
+  worker_results <- vector("list", component_number)
+  for(i in 1:component_number){
+    temp_names <- names(V(decomposed_tree[[i]]))
+    worker_results[[i]] <- propagate.worker_orig(decomposed_tree[[i]], potentials[temp_names], cluster.sets[temp_names])
+  }
+  print(worker_results)
+  return(unlist(worker_results, recursive = FALSE))
 }
 
 # targets is a vector of ANY nodes in the graph
@@ -38,6 +69,8 @@ propagate.worker_test2 <- function(tree.graph, potentials, cluster.sets, targets
   while(length(uncollected) != 0){
     ce <- CollectEvidence(cluster.tree, uncollected[1])
     collected <- ce$collected
+    print("collected:")
+    print(collected)
 
     total_ce$potentials <- c(total_ce$potentials, ce$potentials[collected]) # staple potentials of collected nodes
     total_ce$joint <- c(total_ce$joint, ce$joint[collected]) # staple joints of collected nodes
