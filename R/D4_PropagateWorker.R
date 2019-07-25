@@ -2,8 +2,8 @@
 ## Propagate
 ###########################################
 
-propagate.worker <- function(tree.graph, potentials, cluster.sets){
-  propagate.worker_orig(tree.graph, potentials, cluster.sets)
+propagate.worker <- function(tree.graph, potentials, cluster.sets, targets = NA){
+  propagate.worker_test2(tree.graph, potentials, cluster.sets, targets)
 
 }
 
