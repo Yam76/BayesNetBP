@@ -3,14 +3,14 @@
 ###########################################
 
 propagate.worker <- function(tree.graph, potentials, cluster.sets, targets = NA){
-  propagate.worker_test2(tree.graph, potentials, cluster.sets)
+  propagate.worker_test3(tree.graph, potentials, cluster.sets)
 
 }
 
 propagate.worker_test3 <- function(tree.graph, potentials, cluster.sets, targets = NA){
 
   decomposed_tree <- igraph::decompose(tree.graph)
-  if(any(!is.na(targets))){
+  if(any(!is.na(targets))){ # if any elements in targets are not NA
     cleaned_targets <- targets[!is.na(targets)] # remove NA
     cleaned_targets <- cleaned_targets[cleaned_targets %in% unlist(cluster.sets)] # remove invalid targets
 
@@ -24,14 +24,13 @@ propagate.worker_test3 <- function(tree.graph, potentials, cluster.sets, targets
     decomposed_tree <- decomposed_tree[!is.na(decomposed_tree)] # remove all NA components(from above)
   }
 
-
-
-  # tree.graph <- tree.sub.graph; potentials <- potentials.sub; cluster.sets <- discrete.sets
-
   component_number <- length(decomposed_tree)
   worker_results <- vector("list", component_number)
   for(i in 1:component_number){
     temp_names <- names(V(decomposed_tree[[i]]))
+
+    # we know propagate.worker_orig works for single-component graphs
+    # can exploit this and propagate.worker_orig on each component and then combine the results
     worker_results[[i]] <- propagate.worker_orig(decomposed_tree[[i]], potentials[temp_names], cluster.sets[temp_names])
   }
   print(worker_results)
