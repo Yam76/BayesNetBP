@@ -33,7 +33,7 @@ propagate.worker_test3 <- function(tree.graph, potentials, cluster.sets, targets
     # can exploit this and propagate.worker_orig on each component and then combine the results
     worker_results[[i]] <- propagate.worker_orig(decomposed_tree[[i]], potentials[temp_names], cluster.sets[temp_names])
   }
-  print(worker_results)
+  # print(worker_results)
   return(unlist(worker_results, recursive = FALSE))
 }
 
@@ -146,7 +146,7 @@ propagate.worker_orig <- function(tree.graph, potentials, cluster.sets){
 
   ## NEW version of getting joints
 
-  print(clusters[1])
+   # print(clusters[1])
 
   # collect
   ce <- CollectEvidence(cluster.tree, clusters[1])
@@ -223,8 +223,9 @@ CollectEvidence_test <- function(cluster.tree, node){
     }
   }
 
-  cluster.tree$collected <- nodes_status[nodes_status$collected]$clique.names
-  cluster.tree$active <- nodes_status[nodes_status$collected]$clique.names
+
+  cluster.tree$collected <- nodes_status[, nodes_status$collected]$clique.names
+  cluster.tree$active <- nodes_status[, nodes_status$collected]$clique.names
   return(cluster.tree)
 
   # for(j in 1:length(clique.names)){

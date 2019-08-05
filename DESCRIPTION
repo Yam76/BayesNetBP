@@ -8,7 +8,10 @@ Maintainer: Han Yu <hyu9@buffalo.edu>
 Depends: R (>= 3.3.0), stats, graphics, utils
 Imports: Rgraphviz, igraph, RColorBrewer, fields, doBy, qtlnet,
         methods, qtl, graph, bnlearn
-Suggests: shiny, googleVis
+Suggests: 
+    shiny,
+    googleVis,
+    testthat (>= 2.1.0)
 URL: https://github.com/hyu-ub/BayesNetBP
 BugReports: https://github.com/hyu-ub/BayesNetBP/issues
 LazyData: true
