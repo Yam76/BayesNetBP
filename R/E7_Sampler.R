@@ -108,7 +108,7 @@ compatible <- function(config.1, config.2) {
 ######################################
 
 continuous.single.sampler <- function(tree, cont.v, this.config){
-  continuous.single.sampler_orig(tree, cont.v, this.config)
+  continuous.single.sampler_test(tree, cont.v, this.config)
 
 }
 

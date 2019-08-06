@@ -68,8 +68,8 @@ propagate.worker_test2 <- function(tree.graph, potentials, cluster.sets, targets
   while(length(uncollected) != 0){
     ce <- CollectEvidence(cluster.tree, uncollected[1])
     collected <- ce$collected
-    print("collected:")
-    print(collected)
+    # print("collected:")
+    # print(collected)
 
     total_ce$potentials <- c(total_ce$potentials, ce$potentials[collected]) # staple potentials of collected nodes
     total_ce$joint <- c(total_ce$joint, ce$joint[collected]) # staple joints of collected nodes
@@ -189,14 +189,59 @@ Absorb <- function(absorbedTo, absorbedFrom, separator, distribute=FALSE){
 ###########################################
 
 CollectEvidence <- function(cluster.tree, node){
-  CollectEvidence_orig(cluster.tree, node)
+  CollectEvidence_test2(cluster.tree, node)
 
+}
+
+CollectEvidence_test2 <- function(cluster.tree, node){
+  process_queue <- c(node) # nodes to be processed - end nodes are last (back)
+  node_stack <- c(list(c(node, NA))) # nodes to be absorbed - end nodes are first (front)
+  # add in pairs: child, parent pairs
+
+  processed <- c(node)
+
+  while(length(process_queue) > 0){
+    neighbors <- names(neighbors(cluster.tree$tree, process_queue[1], mode = "all")) # get neighbors
+    unprocessed_neighbors <- neighbors[!(neighbors %in% processed)] # cull for neighbors not in stack
+
+    if(length(unprocessed_neighbors) > 0){
+      temp <- cbind(unprocessed_neighbors, rep(process_queue[1], length(unprocessed_neighbors)))
+      node_stack <- c(split(temp, 1:nrow(temp)), node_stack) # add neighbors to stack top
+
+      process_queue <- c(process_queue[-1], unprocessed_neighbors) # remove first node and add neighbors to queue back
+    }
+    else{
+      process_queue <- process_queue[-1]
+    }
+
+    processed <- c(processed, unprocessed_neighbors)
+
+  }
+
+  for(i in 1:(length(node_stack)-1)){
+    child <- node_stack[[i]][1]
+    parent <- node_stack[[i]][2]
+
+
+    abb <- Absorb(cluster.tree$potentials[[parent]], cluster.tree$potentials[[child]],
+                  separator = intersect( cluster.tree$clusters[[parent]],  cluster.tree$clusters[[child]]))
+    cluster.tree$potentials[[parent]] <- abb[[2]]
+    cluster.tree$potentials[[child]] <- abb[[1]]
+  }
+
+  clique.names <- names(V(cluster.tree$tree))
+
+  cluster.tree$collected <- processed
+  cluster.tree$active <- processed
+  return(cluster.tree)
 }
 
 
 # absorb nodes and then return which nodes were collected
 CollectEvidence_test <- function(cluster.tree, node){
-  clique.names <- names(V(cluster.tree$tree)) # get tree nodes
+  # clique.names <- unique(unlist(cluster.tree$clusters)) # get all nodes
+  clique.names <- names(V(cluster.tree$tree))
+
   nodes_status <- data.frame(clique.names, collected = FALSE, queued = FALSE) # initialize markings
   nodes_status[nodes_status$clique.names %in% node,]$queued <- TRUE # mark `node` as queued
 
@@ -212,9 +257,12 @@ CollectEvidence_test <- function(cluster.tree, node){
     uncollected_names <- uncollected$clique.names # get the names of uncollected neighbors
 
     if(length(uncollected_names) > 0){ # absorb magic
+
       nodes_status[nodes_status$clique.names %in% uncollected$clique.names, ]$queued <- TRUE # queue uncollected neighbors
 
       for (i in 1:length(uncollected_names)) {
+        # print(as.character(uncollected_names[i]))
+
         abb <- Absorb(cluster.tree$potentials[[n]], cluster.tree$potentials[[uncollected_names[i]]],
                       separator = intersect( cluster.tree$clusters[[n]],  cluster.tree$clusters[[uncollected_names[i]]]))
         cluster.tree$potentials[[n]] <- abb[[2]]
@@ -224,8 +272,8 @@ CollectEvidence_test <- function(cluster.tree, node){
   }
 
 
-  cluster.tree$collected <- nodes_status[, nodes_status$collected]$clique.names
-  cluster.tree$active <- nodes_status[, nodes_status$collected]$clique.names
+  cluster.tree$collected <- nodes_status[nodes_status$collected, ]$clique.names
+  cluster.tree$active <- nodes_status[nodes_status$collected, ]$clique.names
   return(cluster.tree)
 
   # for(j in 1:length(clique.names)){
@@ -265,8 +313,11 @@ CollectEvidence_orig <- function(cluster.tree, node) {
     # cst <- ce[[2]]
   }
 
+
   if (length(inactive)>0) {
     for (i in 1:length(inactive)) {
+      # print(inactive[i])
+
       abb <- Absorb(cluster.tree$potentials[[node]], cluster.tree$potentials[[inactive[i]]],
                     separator = intersect( cluster.tree$clusters[[node]],  cluster.tree$clusters[[inactive[i]]]))
       cluster.tree$potentials[[node]] <- abb[[2]]
@@ -284,7 +335,7 @@ CollectEvidence_orig <- function(cluster.tree, node) {
 ###########################################
 
 DistributeEvidence <- function(cluster.tree, node){
-  DistributeEvidence_orig(cluster.tree, node)
+  DistributeEvidence_test(cluster.tree, node)
 }
 
 DistributeEvidence_test <- function(cluster.tree, node){

@@ -72,7 +72,7 @@ Moralize_test2 <- function(graph){
     parents <- inEdges(dag_nodes[i], graph)[[dag_nodes[i]]]
     parents_length <- length(parents)
 
-    print(parents)
+    # print(parents)
 
     if(parents_length >= 2){
       for(n1 in 1:(parents_length-1)){
@@ -86,7 +86,7 @@ Moralize_test2 <- function(graph){
           second <- which(dag_nodes == parent2)
 
           if( !(second %in% dag_adj_list$parent1$edges) && !(first %in% dag_adj_list$parent2$edges && !are_adjacent(und.graph, parent1, parent2)) ){
-            print(c("Adding edge between ", parent1, " ", parent2))
+            # print(c("Adding edge between ", parent1, " ", parent2))
             und.graph <- add_edges(und.graph, c(parent1, parent2))
           }
         }
