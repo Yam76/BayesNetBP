@@ -107,13 +107,8 @@ compatible <- function(config.1, config.2) {
 
 ######################################
 
-continuous.single.sampler <- function(tree, cont.v, this.config){
-  continuous.single.sampler_test(tree, cont.v, this.config)
-
-}
-
 # new version
-continuous.single.sampler_test <- function(tree, cont.v, this.config) {
+continuous.single.sampler <- function(tree, cont.v, this.config) {
   x.cont <- rep(NA, length(cont.v))
   names(x.cont) <- cont.v
   x.gen <- c()
@@ -131,54 +126,6 @@ continuous.single.sampler_test <- function(tree, cont.v, this.config) {
 
       # compat <- apply(this.pot@config, 1, compatible, config.2 = this.config)
       # selectedConfig <- which(compat)
-    }
-
-    if(length(selectedConfig) > 1){
-      warning("More than one configuration selected!")
-    }
-
-    if(ncol(this.pot@beta) == 0) {
-      mu <- this.pot@const[selectedConfig]
-    } else {
-      this.beta <- this.pot@beta
-      beta.var <- colnames(this.beta)
-      var.g <- intersect(x.gen, beta.var)
-      betas <- this.beta[selectedConfig, var.g]
-      mu <- this.pot@const[selectedConfig] + sum(betas * x.cont[var.g])
-    }
-
-    sd <- sqrt(this.pot@variance[selectedConfig])
-
-    x.cont[nd] <- rnorm(1, mean = mu, sd = sd)
-    x.gen <- c(x.gen, nd)
-  }
-  return(x.cont)
-}
-
-# original version
-continuous.single.sampler_orig <- function(tree, cont.v, this.config) {
-  x.cont <- rep(NA, length(cont.v))
-  names(x.cont) <- cont.v
-  x.gen <- c()
-  ## "protime", "ast", "alk", "trig", "copper", "chol", "albumin", "bili"
-  for (nd in rev(cont.v)) {
-    this.pot <- tree@lppotential[[nd]][[1]]
-
-    if(ncol(this.pot@config) == 0) {
-      selectedConfig <- 1
-    } else {
-      # same_named_values <- this.config[intersect(colnames(this.pot@config), names(this.config))] # new implementation
-      # selectedConfig <- which(apply(this.pot@config, 1, function(x) identical(x, same_named_values)))
-
-      compat <- apply(this.pot@config, 1, compatible, config.2 = this.config)
-      selectedConfig <- which(compat)
-      # if(!identical(this.pot@config[selectedConfig, ], this.config[intersect(colnames(this.pot@config), names(this.config))])){
-      #   print(c("CONFIG:", selectedConfig))
-      #   print(this.pot@config[selectedConfig, ])
-      #   print(this.config)
-      # }
-
-
     }
 
     if(length(selectedConfig) > 1){

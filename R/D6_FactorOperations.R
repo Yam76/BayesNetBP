@@ -26,13 +26,6 @@ index.generator <- function(tab1, tab2){
 # tab1 <- bag.post@config; tab2 <- bag.lp@config
 
 index.gen.special <- function(tab1, tab2){
-  index.gen.special_test3(tab1, tab2)
-}
-
-index.gen.special_test3 <- function(tab1, tab2){
-
-
-
   ###### index generation
 
   config.var.int <- sort(intersect(colnames(tab1), colnames(tab2)))
@@ -46,37 +39,17 @@ index.gen.special_test3 <- function(tab1, tab2){
   tab1o <- cbind(tab1, 1:nrow(tab1))
   tab2o <- cbind(tab2, 1:nrow(tab2))
 
-
-
   # do quick check to see which of tab1 or tab2 is smaller
   if(length(tab1) <= length(tab2)){ # if tab1 is smaller or same size
-    # unique.vec <- unique(tab1[, config.var.int, drop=FALSE])
     unique.vec <- tab1[!duplicated(tab1[, config.var.int]), config.var.int, drop = FALSE]
     # this works but gives a different order?? Should be fine since we only care about number of rows
   }
   else{
-    # unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
     unique.vec <- tab2[!duplicated(tab2[, config.var.int]), config.var.int, drop = FALSE]
   }
 
 
-
-
-  # get columns specified by config.var.int and split them, then send them to do.call
-  # tab1o.s<- orderBy(fmr, data=tab1o)
-
-  # split(tab1o[, config.var.int], col(tab1o[, config.var.int]))
-  # # c(list(tab1o), split(tab1o[, config.var.int], col(tab1o[, config.var.int]))) # WRONG
-  # do.call(order, split(tab1o[, config.var.int], col(tab1o[, config.var.int])))
-  # split(tab1o[, config.var.int], rep(1:ncol(tab1o[, config.var.int]), each = nrow(tab1o[, config.var.int])))
-
-
   config_cols_1 <- tab1o[, config.var.int, drop = FALSE]
-
-  # split(config_cols_1, rep(1:ncol(config_cols_1), each = nrow(config_cols_1)))
-  # lapply(seq_len(ncol(x)), function(i) x[,i])
-  # as.list(data.frame(config_cols_1))
-  # config_split_1 <- lapply(seq_len(ncol(config_cols_1)), function(i) config_cols_1[,i])
 
   # SIMPLY RIP EACH COLUMN INTO A SEPARATE VECTOR IN A LIST
   ncols_cc1 <- ncol(config_cols_1)
@@ -88,12 +61,7 @@ index.gen.special_test3 <- function(tab1, tab2){
 
   tab1o.s <- tab1o[do.call(order, config_split_1), , drop = FALSE]
 
-
-  # tab2o.s<- orderBy(fmr, data=tab2o)
-
   config_cols_2 <- tab2o[, config.var.int, drop = FALSE]
-
-  # config_split_2 <- lapply(seq_len(ncol(config_cols_2)), function(i) config_cols_2[,i])
 
   ncols_cc2 <- ncol(config_cols_2)
   config_split_2 <- vector("list", ncols_cc2)
@@ -110,23 +78,12 @@ index.gen.special_test3 <- function(tab1, tab2){
   order.1 <- tab1o.s[, ncol(tab1o.s)]
   order.2 <- tab2o.s[, ncol(tab2o.s)]
   ind.1 <- rep(order.1, each=r.2)
-  # ind.2 <- rep(tab2o.s$order.2_, times=r.2)
 
-  # ind.2 <- c()
-  # ind.2 <- rep(NA, length(ind.1))
   ind.2 <- vector("list", n.uni)
 
-  # order.1 <- tab1o.s$order.1_
-  # print("new ind.2")
-
-  # index <- 1
   for (i in 1:n.uni) {
     this.vec <- order.2[((i-1)*r.2+1):(i*r.2)]
-    # ind.2 <- replace(ind.2, index:(length(full) + index - 1),full)
-    # print(c(length(this.vec), r.1))
-    # index <- index + length(full)
     ind.2[[i]] <- rep(this.vec, r.1)
-
   }
   ind.2 <- unlist(ind.2, use.names = FALSE)
 
@@ -139,236 +96,6 @@ index.gen.special_test3 <- function(tab1, tab2){
 
 }
 
-index.gen.special_test2 <- function(tab1, tab2){
-
-  # matrix(1:ncol(temp1), nrow = ncol(temp1), dimnames = list(colnames(temp1)))
-
-  ###### index generation
-
-  config.var.int <- sort(intersect(colnames(tab1), colnames(tab2)))
-  ## No intersection
-  if (length(config.var.int)==0){
-    ind.exp <- expand.grid(1:nrow(tab1), 1:nrow(tab2))
-    return(ind.exp)
-  }
-  ##
-
-  tab1o <- cbind(tab1, 1:nrow(tab1))
-  tab2o <- cbind(tab2, 1:nrow(tab2))
-
-  # form.str <- paste0("~", paste0(config.var.int, collapse="+"))
-  # fmr <- as.formula(form.str)
-
-  if(length(tab1) <= length(tab2)){ # if tab1 is smaller or same size
-    unique.vec <- unique(tab1[, config.var.int, drop=FALSE]) # do quick check to see which of tab1 or tab2 is smaller
-  }
-  else{
-    unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
-  }
-
-
-
-
-  # get columns specified by config.var.int and split them, then send them to do.call
-  # tab1o.s<- orderBy(fmr, data=tab1o)
-
-  # split(tab1o[, config.var.int], col(tab1o[, config.var.int]))
-  # # c(list(tab1o), split(tab1o[, config.var.int], col(tab1o[, config.var.int]))) # WRONG
-  # do.call(order, split(tab1o[, config.var.int], col(tab1o[, config.var.int])))
-  # split(tab1o[, config.var.int], rep(1:ncol(tab1o[, config.var.int]), each = nrow(tab1o[, config.var.int])))
-
-  config_cols_1 <- tab1o[, config.var.int, drop = FALSE]
-
-  # split(config_cols_1, rep(1:ncol(config_cols_1), each = nrow(config_cols_1)))
-  # lapply(seq_len(ncol(x)), function(i) x[,i])
-  # as.list(data.frame(config_cols_1))
-  config_split_1 <- lapply(seq_len(ncol(config_cols_1)), function(i) config_cols_1[,i])
-
-  tab1o.s <- tab1o[do.call(order, config_split_1), , drop = FALSE]
-
-
-  # tab2o.s<- orderBy(fmr, data=tab2o)
-
-  config_cols_2 <- tab2o[, config.var.int, drop = FALSE]
-
-  config_split_2 <- lapply(seq_len(ncol(config_cols_2)), function(i) config_cols_2[,i])
-
-  tab2o.s <- tab2o[do.call(order, config_split_2), , drop = FALSE]
-
-  n.uni <- nrow(unique.vec)
-  r.1 <- nrow(tab1o.s)/n.uni
-  r.2 <- nrow(tab2o.s)/n.uni
-
-  order.1 <- tab1o.s[, ncol(tab1o.s)]
-  order.2 <- tab2o.s[, ncol(tab2o.s)]
-  ind.1 <- rep(order.1, each=r.2)
-  # ind.2 <- rep(tab2o.s$order.2_, times=r.2)
-
-  # ind.2 <- c()
-  # ind.2 <- rep(NA, length(ind.1))
-  ind.2 <- vector("list", n.uni)
-
-  # order.1 <- tab1o.s$order.1_
-  # print("new ind.2")
-
-  # index <- 1
-  for (i in 1:n.uni) {
-    this.vec <- order.2[((i-1)*r.2+1):(i*r.2)]
-    # ind.2 <- replace(ind.2, index:(length(full) + index - 1),full)
-    # print(c(length(this.vec), r.1))
-    # index <- index + length(full)
-    ind.2[[i]] <- rep(this.vec, r.1)
-
-  }
-  ind.2 <- unlist(ind.2, use.names = FALSE)
-
-  ind.exp <- cbind(ind.1, ind.2)
-
-  class(ind.exp) <- "numeric"
-  ind.exp <- orderBy(~ind.2+ind.1, ind.exp)
-
-  return(ind.exp)
-
-}
-
-index.gen.special_test <- function(tab1, tab2){
-
-  # matrix(1:ncol(temp1), nrow = ncol(temp1), dimnames = list(colnames(temp1)))
-
-  ###### index generation
-
-  config.var.int <- sort(intersect(colnames(tab1), colnames(tab2)))
-  ## No intersection
-  if (length(config.var.int)==0){
-    ind.exp <- expand.grid(1:nrow(tab1), 1:nrow(tab2))
-    return(ind.exp)
-  }
-  ##
-
-  tab1o <- cbind(tab1, 1:nrow(tab1))
-  tab2o <- cbind(tab2, 1:nrow(tab2))
-
-  # form.str <- paste0("~", paste0(config.var.int, collapse="+"))
-  # fmr <- as.formula(form.str)
-
-  if(length(tab1) <= length(tab2)){ # if tab1 is smaller or same size
-    unique.vec <- unique(tab1[, config.var.int, drop=FALSE]) # do quick check to see which of tab1 or tab2 is smaller
-  }
-  else{
-    unique.vec <- unique(tab2[, config.var.int, drop=FALSE])
-  }
-
-
-
-
-  # get columns specified by config.var.int and split them, then send them to do.call
-  # tab1o.s<- orderBy(fmr, data=tab1o)
-
-  # split(tab1o[, config.var.int], col(tab1o[, config.var.int]))
-  # # c(list(tab1o), split(tab1o[, config.var.int], col(tab1o[, config.var.int]))) # WRONG
-  # do.call(order, split(tab1o[, config.var.int], col(tab1o[, config.var.int])))
-  # split(tab1o[, config.var.int], rep(1:ncol(tab1o[, config.var.int]), each = nrow(tab1o[, config.var.int])))
-
-  config_cols_1 <- tab1o[, config.var.int, drop = FALSE]
-
-  # split(config_cols_1, rep(1:ncol(config_cols_1), each = nrow(config_cols_1)))
-  # lapply(seq_len(ncol(x)), function(i) x[,i])
-  # as.list(data.frame(config_cols_1))
-  config_split_1 <- lapply(seq_len(ncol(config_cols_1)), function(i) config_cols_1[,i])
-
-  tab1o.s <- tab1o[do.call(order, config_split_1), , drop = FALSE]
-
-
-  # tab2o.s<- orderBy(fmr, data=tab2o)
-
-  config_cols_2 <- tab2o[, config.var.int, drop = FALSE]
-
-  config_split_2 <- lapply(seq_len(ncol(config_cols_2)), function(i) config_cols_2[,i])
-
-  tab2o.s <- tab2o[do.call(order, config_split_2), , drop = FALSE]
-
-  n.uni <- nrow(unique.vec)
-  r.1 <- nrow(tab1o.s)/n.uni
-  r.2 <- nrow(tab2o.s)/n.uni
-
-  order.1 <- tab1o.s[, ncol(tab1o.s)]
-  order.2 <- tab2o.s[, ncol(tab2o.s)]
-  ind.1 <- rep(order.1, each=r.2)
-  # ind.2 <- rep(tab2o.s$order.2_, times=r.2)
-  ind.2 <- c()
-  # order.1 <- tab1o.s$order.1_
-  # print("new ind.2")
-
-  for (i in 1:n.uni) {
-    this.vec <- order.2[((i-1)*r.2+1):(i*r.2)]
-    ind.2 <- c(ind.2, rep(this.vec, r.1))
-    # print(c(length(this.vec), r.1))
-
-  }
-
-  ind.exp <- cbind(ind.1, ind.2)
-
-  class(ind.exp) <- "numeric"
-  ind.exp <- orderBy(~ind.2+ind.1, ind.exp)
-
-  return(ind.exp)
-
-}
-
-index.gen.special_orig <- function(tab1, tab2){
-
-  ###### index generation
-  config.var.1 <- colnames(tab1)
-  config.var.2 <- colnames(tab2)
-  config.var.int <- sort(intersect(config.var.1, config.var.2))
-  ## No intersection
-  if (length(config.var.int)==0){
-    ind.exp <- expand.grid(1:nrow(tab1), 1:nrow(tab2))
-    return(ind.exp)
-  }
-  ##
-  order.1_ <- 1:nrow(tab1)
-  order.2_ <- 1:nrow(tab2)
-
-  tab1o <- cbind(tab1, order.1_)
-  tab2o <- cbind(tab2, order.2_)
-
-  form.str <- paste0("~", paste0(config.var.int, collapse="+"))
-  fmr <- as.formula(form.str)
-
-  tab1o.s<- orderBy(fmr, data=tab1o)
-  tab2o.s<- orderBy(fmr, data=tab2o)
-  unique.vec <- unique(tab1[, config.var.int, drop=FALSE])
-
-  n.uni <- nrow(unique.vec)
-  n.1 <- nrow(tab1o.s)
-  nc.1 <- ncol(tab1o.s)
-  n.2 <- nrow(tab2o.s)
-  nc.2 <- ncol(tab2o.s)
-  r.1 <- n.1/n.uni
-  r.2 <- n.2/n.uni
-
-  order.1 <- tab1o.s[,nc.1]
-  order.2 <- tab2o.s[,nc.2]
-  ind.1 <- rep(order.1, each=r.2)
-  # ind.2 <- rep(tab2o.s$order.2_, times=r.2)
-  ind.2 <- c()
-  # order.1 <- tab1o.s$order.1_
-
-
-  for (i in 1:n.uni) {
-    this.vec <- order.2[((i-1)*r.2+1):(i*r.2)]
-    ind.2 <- c(ind.2, rep(this.vec, r.1))
-  }
-
-  ind.exp <- cbind(ind.1, ind.2)
-
-  class(ind.exp) <- "numeric"
-  ind.exp <- orderBy(~ind.2+ind.1, ind.exp)
-
-  return(ind.exp)
-
-}
 
 # system.time(exp0 <- index.gen.special.0(tab1,tab2))
 # system.time(exp1 <- index.gen.special(tab1,tab2))
@@ -462,24 +189,8 @@ conditional <- function(pot, vars) {
 # system.time(mg1 <- marginalize.discrete(pot, vars) )
 
 #' @importFrom doBy summaryBy
+
 marginalize.discrete <- function(pot, vars){
-  marginalize.discrete_test(pot, vars)
-}
-
-# marginalize.discrete_test2 <- function(pot, vars){
-#   # get intersection b/wn pot$cpt and vars names
-#   pot.vars <- names(pot$cpt) ######
-#   vars <- intersect(pot.vars, vars) ######
-#   if(length(vars)==0) {
-#     result <- list(cpt=data.frame(matrix(0,nrow=0,ncol=0)), prob=1)
-#     return(result)
-#   }
-#
-#   df <- cbind(pot$cpt, prob_ = pot$prob)
-#
-# }
-
-marginalize.discrete_test <- function(pot, vars){
   # get intersection b/wn pot$cpt and vars names
   pot.vars <- names(pot$cpt) ######
   vars <- intersect(pot.vars, vars) ######
@@ -500,24 +211,4 @@ marginalize.discrete_test <- function(pot, vars){
 
   return(result)
 
-}
-
-marginalize.discrete_orig <- function(pot, vars) {
-
-  pot.vars <- names(pot$cpt) ######
-  vars <- intersect(pot.vars, vars) ######
-
-  if(length(vars)==0) {
-    result <- list(cpt=data.frame(matrix(0,nrow=0,ncol=0)), prob=1)
-    return(result)
-  }
-
-  df <- data.frame(pot$cpt, prob_=pot$prob)
-  nc <- length(vars)
-  fmr.str <- paste0("prob_~", paste0(vars, collapse="+"))
-  fmr <- as.formula(fmr.str)
-  dfs <- summaryBy(fmr, df, FUN=sum)
-  result <- list(cpt=dfs[, 1:nc, drop=FALSE], prob=dfs[,(nc+1)])
-
-  return(result)
 }
