@@ -5,7 +5,6 @@
 Triangulate <- function(graph, elim.order){
   dag.graph <- igraph.from.graphNEL(graph, weight=FALSE)
   for(i in 1:length(elim.order)){
-    # print(c("on ", i))
 
     node <- elim.order[i]
     neighbors <- names(neighbors(dag.graph, node, mode="all"))
@@ -18,16 +17,12 @@ Triangulate <- function(graph, elim.order){
         n2 <- neighbors[node_pairs[j, 2]]
         if (which(elim.order==n1)>i && which(elim.order==n2)>i){
           if(get.edge.ids(dag.graph, c(n1, n2)) == 0){
-
-
             dag.graph <- add_edges(dag.graph, c(n1, n2))
           }
         }
       }
     }
   }
-  # print("simplifying")
-  # dag.graph <- simplify(dag.graph, remove.loops = FALSE)
   dag.tri <- igraph.to.graphNEL(dag.graph)
   return(dag.tri)
 }
