@@ -4,7 +4,7 @@ library(BayesNetBP)
 
 data("toytree")
 
-tree <- toytree@graph$dag
+tree <- toytree
 
 # Define UI for app that draws a histogram ----
 ui <- fluidPage(
@@ -129,6 +129,18 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram ----
 server <- function(input, output, session) {
 
+  observeEvent(input$update, {
+    if(!is.null(input$file1) & class(toytree) == "ClusterTree"){
+      print(input$file1$datapath)
+      print(names(input$file1))
+      tree <- get(load(input$file1$datapath))
+      output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
+    }
+    else{
+      print("Invalid file")
+    }
+  })
+
   # Histogram of the Old Faithful Geyser Data ----
   # with requested number of bins
   # This expression that generates a histogram is wrapped in a call
@@ -154,7 +166,7 @@ server <- function(input, output, session) {
     paste(0)
   })
 
-  output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree), "dagre") )
+  output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
 
   observeEvent(input$update, {
     print("hello")
