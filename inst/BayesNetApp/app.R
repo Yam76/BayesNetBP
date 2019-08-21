@@ -133,7 +133,10 @@ server <- function(input, output, session) {
   observeEvent(input$update, {
     if(!is.null(input$file1) & class(toytree) == "ClusterTree"){
       tree <- get(load(input$file1$datapath))
+      subtree <- tree
+
       output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
+      output$cyjShiny_subtree <- renderCyjShiny( cyjShiny(graphNELtoJSON(subtree@graph$dag), "dagre") )
     }
 
     # probably remove/change this later
