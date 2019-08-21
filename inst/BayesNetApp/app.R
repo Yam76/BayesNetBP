@@ -3,8 +3,9 @@ library(cyjShiny)
 library(BayesNetBP)
 
 data("toytree")
-# `tree` is an object of class ClusterTree
+# `tree` and `subtree` are objects of class ClusterTree
 tree <- toytree
+subtree <- tree
 
 
 
@@ -122,7 +123,7 @@ server <- function(input, output, session) {
 
   output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
 
-  output$cyjShiny_subtree <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
+  output$cyjShiny_subtree <- renderCyjShiny( cyjShiny(graphNELtoJSON(subtree@graph$dag), "dagre") )
 
   loadStyleFile(system.file(package = "BayesNetBP", "data", "style.js"))
 
