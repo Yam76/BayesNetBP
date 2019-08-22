@@ -3,10 +3,14 @@ library(cyjShiny)
 library(BayesNetBP)
 
 data("toytree")
+# `tree` and `subtree` are objects of class ClusterTree
+tree <- toytree
+subtree <- tree
 
-tree <- toytree@graph$dag
 
-# Define UI for app that draws a histogram ----
+
+
+#************************************************************
 ui <- fluidPage(
   titlePanel("BayesNetBP"),
 
@@ -91,76 +95,56 @@ ui <- fluidPage(
     )
   ),
 
+  # graph panels, main graph and subgraph
+  fluidRow(
+    column(6,
+        cyjShinyOutput('cyjShiny')
+    ),
 
+    column(6,
+        cyjShinyOutput("cyjShiny_subtree")
+    )
+  ),
 
-
-  # Sidebar layout with input and output definitions ----
-  ######### Sidebar panel for inputs ----#######################
-  # sidebarLayout(
-  #
-  #   sidebarPanel(
-  #     # Input: Slider for the number of bins ----
-  #     sliderInput(inputId = "bins",
-  #                 label = "Number of bins:",
-  #                 min = 1,
-  #                 max = 50,
-  #                 value = 30),
-  #   ),
-  #
-  # )
-  ####################################################
-
-  ################ Main panel for displaying outputs ----######################
+  #----- this is a small hack that allows us to put some white space at the bottom
   mainPanel(
-    textOutput("test_text"), #================================= test =======================
-
-    textOutput("test_text_2"),
-
-    # Output: Histogram ----
-    # plotOutput(outputId = "distPlot"),
-
-    cyjShinyOutput('cyjShiny', width="800px", height="800px")
+    h3(textOutput("whitespace"))
   )
-  ################################################################################
-
 
 )
 
-# Define server logic required to draw a histogram ----
+#************************************************************
 server <- function(input, output, session) {
+  # https://stackoverflow.com/questions/33519816/shiny-what-is-the-difference-between-observeevent-and-eventreactive
 
-  # Histogram of the Old Faithful Geyser Data ----
-  # with requested number of bins
-  # This expression that generates a histogram is wrapped in a call
-  # to renderPlot to indicate that:
-  #
-  # 1. It is "reactive" and therefore should be automatically
-  #    re-executed when inputs (input$bins) change
-  # 2. Its output type is a plot
-  # output$distPlot <- renderPlot({
-  #
-  #   x    <- faithful$waiting
-  #   bins <- seq(min(x), max(x), length.out = input$bins + 1)
-  #
-  #   hist(x, breaks = bins, col = "#75AADB", border = "white",
-  #        xlab = "Waiting time to next eruption (in mins)",
-  #        main = "Histogram of waiting times")
-  # })
-  output$test_text <- renderText({ #================================= test =======================
-    paste(input$range[1])
-  })
 
-  output$test_text_2 <- renderText({ #================================= test =======================
-    paste(0)
-  })
+  # initialization
 
-  output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree), "dagre") )
+
+  output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
+
+  output$cyjShiny_subtree <- renderCyjShiny( cyjShiny(graphNELtoJSON(subtree@graph$dag), "dagre") )
+
+  loadStyleFile(system.file(package = "BayesNetBP", "data", "style.js"))
+
+
+  # event observation
 
   observeEvent(input$update, {
-    print("hello")
+    if(!is.null(input$file1) & class(toytree) == "ClusterTree"){
+      tree <- get(load(input$file1$datapath))
+      subtree <- tree
+
+      output$cyjShiny <- renderCyjShiny( cyjShiny(graphNELtoJSON(tree@graph$dag), "dagre") )
+      output$cyjShiny_subtree <- renderCyjShiny( cyjShiny(graphNELtoJSON(subtree@graph$dag), "dagre") )
+    }
+
+    # probably remove/change this later
+    else{
+      print("Invalid file")
+    }
   })
 
-  # https://stackoverflow.com/questions/33519816/shiny-what-is-the-difference-between-observeevent-and-eventreactive
 
 
 }
