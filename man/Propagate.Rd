@@ -4,7 +4,7 @@
 \alias{Propagate}
 \title{Propagate the cluster tree}
 \usage{
-Propagate(tree)
+Propagate(tree, targets = NA)
 }
 \arguments{
 \item{tree}{an initialized \code{\linkS4class{ClusterTree}} object}
@@ -23,8 +23,8 @@ before absorbing evidence and making queries.
 \examples{
 
 data(liver)
-tree.init <- Initializer(dag=liver$dag, data=liver$data, 
-                         node.class=liver$node.class, 
+tree.init <- Initializer(dag=liver$dag, data=liver$data,
+                         node.class=liver$node.class,
                          propagate = FALSE)
 tree.init@propagated
 tree.init.p <- Propagate(tree.init)
